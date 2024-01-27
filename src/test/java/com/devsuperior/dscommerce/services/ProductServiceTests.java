@@ -6,6 +6,7 @@ import com.devsuperior.dscommerce.entities.Product;
 import com.devsuperior.dscommerce.repositories.ProductRepository;
 import com.devsuperior.dscommerce.services.exceptions.ResourceNotFoundException;
 import com.devsuperior.dscommerce.tests.ProductFactory;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,9 +17,9 @@ import org.mockito.Mockito;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import org.springframework.data.domain.Pageable;
 import java.util.List;
 import java.util.Optional;
 
@@ -55,6 +56,9 @@ public class ProductServiceTests {
         Mockito.when(repository.searchByName(any(), (Pageable)any())).thenReturn(page);
 
         Mockito.when(repository.save(any())).thenReturn(product);
+
+        Mockito.when(repository.getReferenceById(existingProductId)).thenReturn(product);
+        Mockito.when(repository.getReferenceById(nonExistingProductId)).thenThrow(EntityNotFoundException.class);
     }
 
     @Test
@@ -96,5 +100,24 @@ public class ProductServiceTests {
         Assertions.assertNotNull(result);
         Assertions.assertEquals(result.getId(), product.getId());
         Assertions.assertEquals(result.getName(), product.getName());
+    }
+
+    @Test
+    public void updateShouldReturnProductDTOtWhenIdExists() {
+
+        ProductDTO result = service.update(existingProductId, productDTO);
+
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals(result.getId(), existingProductId);
+        Assertions.assertEquals(result.getName(), product.getName());
+        Assertions.assertEquals(result.getDescription(), product.getDescription());
+    }
+
+    @Test
+    public void updateShouldReturnResourceNotFoundExceptionWhenIdDoesNotExists() {
+
+        Assertions.assertThrows(ResourceNotFoundException.class, () -> {
+            service.update(nonExistingProductId, productDTO);
+        });
     }
 }
