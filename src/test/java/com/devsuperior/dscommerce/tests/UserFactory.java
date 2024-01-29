@@ -35,7 +35,7 @@ public class UserFactory {
         User user = new User(id, username, "maria@gmail.com",
                 "349295653",LocalDate.parse("1987-12-13" ),
                 "$2a$10$N7SkKCa3r17ga.i.dF9iy.BFUBL2n3b6Z1CWSZWi/qy7ABq/E6VpO") ;
-        user.addRole(new Role(2L, "ROLE_ADMIN"));
+        user.addRole(new Role(2L, "ROLE_CLIENT"));
         return user;
     }
 }
